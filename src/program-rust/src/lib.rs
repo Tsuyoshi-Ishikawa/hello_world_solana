@@ -39,8 +39,10 @@ pub fn process_instruction(
     }
 
     // Increment and store the number of times the account has been greeted
+    //account.data.borrow()はbyteデータなので、それをdecodeしている
     let mut greeting_account = GreetingAccount::try_from_slice(&account.data.borrow())?;
     greeting_account.counter += 1;
+    //writerにgreeting_accountのデータを保存している
     greeting_account.serialize(&mut &mut account.data.borrow_mut()[..])?;
 
     msg!("Greeted {} time(s)!", greeting_account.counter);

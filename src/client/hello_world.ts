@@ -161,7 +161,10 @@ export async function checkProgram(): Promise<void> {
   console.log(`Using program ${programId.toBase58()}`);
 
   // Derive the address (public key) of a greeting account from the program so that it's easy to find later.
+  // ここでPDAができている。
   const GREETING_SEED = 'hello';
+  // classの変数greetedPubkeyにPDAを保存している。
+  // それをsayHelloで使用して、contractに送っている。
   greetedPubkey = await PublicKey.createWithSeed(
     payer.publicKey,
     GREETING_SEED,
@@ -181,6 +184,8 @@ export async function checkProgram(): Promise<void> {
     );
 
     const transaction = new Transaction().add(
+      // createAccountWithSeedでsolanaにPDAを作ってもらう
+      // https://docs.solana.com/developing/programming-model/calling-between-programs#hash-based-generated-program-addresses
       SystemProgram.createAccountWithSeed({
         fromPubkey: payer.publicKey,
         basePubkey: payer.publicKey,
@@ -201,6 +206,8 @@ export async function checkProgram(): Promise<void> {
 export async function sayHello(): Promise<void> {
   console.log('Saying hello to', greetedPubkey.toBase58());
   const instruction = new TransactionInstruction({
+    // checkProgramでgreetedPubkeyに保存されたPDAを
+    // contractに送っている。
     keys: [{pubkey: greetedPubkey, isSigner: false, isWritable: true}],
     programId,
     data: Buffer.alloc(0), // All instructions are hellos
